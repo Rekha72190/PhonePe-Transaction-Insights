@@ -59,7 +59,7 @@ if page == "🏠 Home":
     # ---------------- Filters ----------------
     c1,c2,c3 = st.columns(3)
 
-    year = c1.selectbox("Year",[2018,2019,2020,2021,2022,2023])
+    year = c1.selectbox("Year",[2018,2019,2020,2021,2022,2023,2024])
     quarter = c2.selectbox("Quarter",[1,2,3,4])
     metric = c3.selectbox(
         "Metric",
@@ -233,7 +233,7 @@ else:
     )
 
     c1,c2=st.columns(2)
-    year=c1.selectbox("Year",[2018,2019,2020,2021,2022,2023])
+    year=c1.selectbox("Year",[2018,2019,2020,2021,2022,2023,2024])
     quarter=c2.selectbox("Quarter",[1,2,3,4])
 
 # =====================================================
