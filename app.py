@@ -57,17 +57,17 @@ if page == "🏠 Home":
     st.title("PhonePe Pulse — The Beat of Progress")
 
     # Filters
-    c1, c2, c3 = st.columns(3)
+    c1,c2,c3 = st.columns(3)
 
-    year = c1.selectbox("Year", [2018, 2019, 2020, 2021, 2022, 2023, 2024])
-    quarter = c2.selectbox("Quarter", [1, 2, 3, 4])
+    year = c1.selectbox("Year",[2018,2019,2020,2021,2022,2023,2024])
+    quarter = c2.selectbox("Quarter",[1,2,3,4])
     metric = c3.selectbox(
         "Metric",
-        ["Transaction Amount", "Transaction Count"]
+        ["Transaction Amount","Transaction Count"]
     )
 
     # SQL Query
-    query = f"""
+    query=f"""
     SELECT state,
     SUM(transaction_count) total_txn,
     SUM(transaction_amount) total_amt
@@ -76,11 +76,11 @@ if page == "🏠 Home":
     GROUP BY state
     """
 
-    df = pd.read_sql(query, engine)
+    df = pd.read_sql(query,engine)
 
-    df["state"] = df["state"].str.replace("-", " ").str.title()
+    df["state"]=df["state"].str.replace("-"," ").str.title()
 
-    value = "total_amt" if metric == "Transaction Amount" else "total_txn"
+    value = "total_amt" if metric=="Transaction Amount" else "total_txn"
 
     fig = px.choropleth(
         df,
@@ -91,9 +91,9 @@ if page == "🏠 Home":
         color_continuous_scale="Turbo"
     )
 
-    fig.update_geos(fitbounds="locations", visible=False)
+    fig.update_geos(fitbounds="locations",visible=False)
 
-    st.plotly_chart(fig, width="stretch")  # updated
+    st.plotly_chart(fig,use_container_width=True)
 
 # =====================================================
 # EXPLORE DATA
@@ -114,35 +114,35 @@ if page == "🏠 Home":
     )
 
 # ---------- TOP STATES ----------
-    if explore == "Top States":
+    if explore=="Top States":
 
-        df = pd.read_sql(f"""
+        df=pd.read_sql(f"""
         SELECT state,
         SUM(transaction_amount) amount
         FROM aggregated_transaction
         WHERE year={year} AND quarter={quarter}
         GROUP BY state
         ORDER BY amount DESC LIMIT 10
-        """, engine)
+        """,engine)
 
-        st.plotly_chart(px.bar(df, x="state", y="amount", title="Top States"), width="stretch")
+        st.plotly_chart(px.bar(df,x="state",y="amount",title="Top States"))
 
 # ---------- TOP DISTRICT ----------
-    elif explore == "Top District":
+    elif explore=="Top District":
 
-        df = pd.read_sql(f"""
+        df=pd.read_sql(f"""
         SELECT district,
         SUM(transaction_amount) amount
         FROM map_transaction
         WHERE year={year} AND quarter={quarter}
         GROUP BY district
         ORDER BY amount DESC LIMIT 10
-        """, engine)
+        """,engine)
 
-        st.plotly_chart(px.bar(df, x="district", y="amount", title="Top Districts"), width="stretch")
+        st.plotly_chart(px.bar(df,x="district",y="amount",title="Top Districts"))
 
 # ---------- TOP PINCODE ----------
-    elif explore == "Top Pincode":
+    elif explore=="Top Pincode":
 
         check = pd.read_sql(
             "SELECT * FROM top_transaction LIMIT 1",
@@ -151,47 +151,47 @@ if page == "🏠 Home":
 
         col = check.columns[0]
 
-        df = pd.read_sql(f"""
+        df=pd.read_sql(f"""
         SELECT {col},
         SUM(transaction_amount) amount
         FROM top_transaction
         WHERE year={year} AND quarter={quarter}
         GROUP BY {col}
         ORDER BY amount DESC LIMIT 10
-        """, engine)
+        """,engine)
 
-        st.plotly_chart(px.bar(df, x=col, y="amount", title="Top Pincode"), width="stretch")
+        st.plotly_chart(px.bar(df,x=col,y="amount",title="Top Pincode"))
 
 # ---------- REPORT ----------
-    elif explore == "Reports":
+    elif explore=="Reports":
 
-        df = pd.read_sql("""
+        df=pd.read_sql("""
         SELECT year,
         SUM(transaction_amount) amount
         FROM aggregated_transaction
         GROUP BY year
-        """, engine)
+        """,engine)
 
-        st.plotly_chart(px.line(df, x="year", y="amount", markers=True, title="Growth Report"), width="stretch")
+        st.plotly_chart(px.line(df,x="year",y="amount",markers=True,title="Growth Report"))
 
 # ---------- INSIGHTS ----------
-    elif explore == "Insights":
+    elif explore=="Insights":
 
-        df = pd.read_sql("""
+        df=pd.read_sql("""
         SELECT state,
         SUM(transaction_amount) amount
         FROM aggregated_transaction
         GROUP BY state
         ORDER BY amount DESC LIMIT 1
-        """, engine)
+        """,engine)
 
-        st.metric("Top Performing State", df.iloc[0, 0])
-        st.metric("Transaction Value", f"₹ {df.iloc[0, 1]/1e7:.2f} Cr")
+        st.metric("Top Performing State",df.iloc[0,0])
+        st.metric("Transaction Value",f"₹ {df.iloc[0,1]/1e7:.2f} Cr")
 
 # ---------- DATA API ----------
-    elif explore == "Data API":
+    elif explore=="Data API":
 
-        df = pd.read_sql(
+        df=pd.read_sql(
             "SELECT * FROM aggregated_transaction LIMIT 100",
             engine
         )
@@ -216,178 +216,178 @@ else:
         ]
     )
 
-    c1, c2 = st.columns(2)
+    c1,c2 = st.columns(2)
 
-    year = c1.selectbox("Year", [2018, 2019, 2020, 2021, 2022, 2023, 2024])
-    quarter = c2.selectbox("Quarter", [1, 2, 3, 4])
+    year = c1.selectbox("Year",[2018,2019,2020,2021,2022,2023,2024])
+    quarter = c2.selectbox("Quarter",[1,2,3,4])
 
 # =====================================================
 # CASE 1 — TRANSACTION DYNAMICS
 # =====================================================
-    if case == "Transaction Dynamics":
+    if case=="Transaction Dynamics":
 
-        analysis = st.selectbox(
+        analysis=st.selectbox(
             "Analysis",
-            ["Top States", "Type Share", "Year Growth", "Quarter Trend", "Count Spread"]
+            ["Top States","Type Share","Year Growth","Quarter Trend","Count Spread"]
         )
 
-        if analysis == "Top States":
+        if analysis=="Top States":
 
-            df = pd.read_sql(f"""
+            df=pd.read_sql(f"""
             SELECT state,SUM(transaction_amount) amount
             FROM aggregated_transaction
             WHERE year={year} AND quarter={quarter}
             GROUP BY state
             ORDER BY amount DESC LIMIT 10
-            """, engine)
+            """,engine)
 
-            st.plotly_chart(px.bar(df, x="state", y="amount"), width="stretch")
+            st.plotly_chart(px.bar(df,x="state",y="amount"))
 
-        elif analysis == "Type Share":
+        elif analysis=="Type Share":
 
-            df = pd.read_sql(f"""
+            df=pd.read_sql(f"""
             SELECT transaction_type,SUM(transaction_amount) amount
             FROM aggregated_transaction
             WHERE year={year} AND quarter={quarter}
             GROUP BY transaction_type
-            """, engine)
+            """,engine)
 
-            st.plotly_chart(px.pie(df, names="transaction_type", values="amount"), width="stretch")
+            st.plotly_chart(px.pie(df,names="transaction_type",values="amount"))
 
-        elif analysis == "Year Growth":
+        elif analysis=="Year Growth":
 
-            df = pd.read_sql("""
+            df=pd.read_sql("""
             SELECT year,SUM(transaction_amount) amount
             FROM aggregated_transaction
             GROUP BY year ORDER BY year
-            """, engine)
+            """,engine)
 
-            st.plotly_chart(px.line(df, x="year", y="amount"), width="stretch")
+            st.plotly_chart(px.line(df,x="year",y="amount"))
 
-        elif analysis == "Quarter Trend":
+        elif analysis=="Quarter Trend":
 
-            df = pd.read_sql(f"""
+            df=pd.read_sql(f"""
             SELECT quarter,SUM(transaction_amount) amount
             FROM aggregated_transaction
             WHERE year={year}
             GROUP BY quarter ORDER BY quarter
-            """, engine)
+            """,engine)
 
-            st.plotly_chart(px.bar(df, x="quarter", y="amount"), width="stretch")
+            st.plotly_chart(px.bar(df,x="quarter",y="amount"))
 
         else:
 
-            df = pd.read_sql(f"""
+            df=pd.read_sql(f"""
             SELECT state,SUM(transaction_count) cnt
             FROM aggregated_transaction
             WHERE year={year} AND quarter={quarter}
             GROUP BY state
-            """, engine)
+            """,engine)
 
-            st.plotly_chart(px.scatter(df, x="state", y="cnt"), width="stretch")
+            st.plotly_chart(px.scatter(df,x="state",y="cnt"))
 
 # =====================================================
 # CASE 2 — DEVICE DOMINANCE
 # =====================================================
-    elif case == "Device Dominance":
+    elif case=="Device Dominance":
 
-        analysis = st.selectbox(
+        analysis=st.selectbox(
             "Analysis",
-            ["User Type", "User Growth", "State Users", "App Opens", "Engagement"]
+            ["User Type","User Growth","State Users","App Opens","Engagement"]
         )
 
-        if analysis == "User Type":
+        if analysis=="User Type":
 
-            df = pd.read_sql(f"""
+            df=pd.read_sql(f"""
             SELECT user_type,SUM(user_count) users
             FROM aggregated_user
             WHERE year={year} AND quarter={quarter}
             GROUP BY user_type
-            """, engine)
+            """,engine)
 
-            st.plotly_chart(px.bar(df, x="user_type", y="users"), width="stretch")
+            st.plotly_chart(px.bar(df,x="user_type",y="users"))
 
-        elif analysis == "User Growth":
+        elif analysis=="User Growth":
 
-            df = pd.read_sql("""
+            df=pd.read_sql("""
             SELECT year,SUM(user_count) users
             FROM aggregated_user
             GROUP BY year ORDER BY year
-            """, engine)
+            """,engine)
 
-            st.plotly_chart(px.line(df, x="year", y="users"), width="stretch")
+            st.plotly_chart(px.line(df,x="year",y="users"))
 
-        elif analysis == "State Users":
+        elif analysis=="State Users":
 
-            df = pd.read_sql(f"""
+            df=pd.read_sql(f"""
             SELECT state,SUM(user_count) users
             FROM aggregated_user
             WHERE year={year} AND quarter={quarter}
             GROUP BY state
-            """, engine)
+            """,engine)
 
-            st.plotly_chart(px.bar(df, x="state", y="users"), width="stretch")
+            st.plotly_chart(px.bar(df,x="state",y="users"))
 
-        elif analysis == "App Opens":
+        elif analysis=="App Opens":
 
-            df = pd.read_sql(f"""
+            df=pd.read_sql(f"""
             SELECT state,SUM(app_opens) opens
             FROM map_user
             WHERE year={year} AND quarter={quarter}
             GROUP BY state
-            """, engine)
+            """,engine)
 
-            st.plotly_chart(px.bar(df, x="state", y="opens"), width="stretch")
+            st.plotly_chart(px.bar(df,x="state",y="opens"))
 
         else:
 
-            df = pd.read_sql(f"""
+            df=pd.read_sql(f"""
             SELECT state,
             SUM(app_opens)/SUM(registered_users) ratio
             FROM map_user
             WHERE year={year} AND quarter={quarter}
             GROUP BY state
-            """, engine)
+            """,engine)
 
-            st.plotly_chart(px.scatter(df, x="state", y="ratio"), width="stretch")
+            st.plotly_chart(px.scatter(df,x="state",y="ratio"))
 
 # =====================================================
 # CASE 3 — INSURANCE GROWTH
 # =====================================================
-    elif case == "Insurance Growth":
+    elif case=="Insurance Growth":
 
-        df = pd.read_sql("""
+        df=pd.read_sql("""
         SELECT year,SUM(insurance_amount) amount
         FROM aggregated_insurance
         GROUP BY year ORDER BY year
-        """, engine)
+        """,engine)
 
-        st.plotly_chart(px.line(df, x="year", y="amount"), width="stretch")
+        st.plotly_chart(px.line(df,x="year",y="amount"))
 
 # =====================================================
 # CASE 4 — MARKET EXPANSION
 # =====================================================
-    elif case == "Market Expansion":
+    elif case=="Market Expansion":
 
-        df = pd.read_sql(f"""
+        df=pd.read_sql(f"""
         SELECT state,SUM(transaction_count) cnt
         FROM map_transaction
         WHERE year={year} AND quarter={quarter}
         GROUP BY state
-        """, engine)
+        """,engine)
 
-        st.plotly_chart(px.bar(df, x="state", y="cnt"), width="stretch")
+        st.plotly_chart(px.bar(df,x="state",y="cnt"))
 
 # =====================================================
 # CASE 5 — USER ENGAGEMENT
 # =====================================================
-    elif case == "User Engagement":
+    elif case=="User Engagement":
 
-        df = pd.read_sql(f"""
+        df=pd.read_sql(f"""
         SELECT state,SUM(app_opens) opens
         FROM map_user
         WHERE year={year} AND quarter={quarter}
         GROUP BY state
-        """, engine)
+        """,engine)
 
-        st.plotly_chart(px.bar(df, x="state", y="opens"), width="stretch")
+        st.plotly_chart(px.bar(df,x="state",y="opens"))
